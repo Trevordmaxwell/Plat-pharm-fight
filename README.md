@@ -68,8 +68,8 @@ Then open `http://localhost:8080`
 
 ## Customize
 
-- Add characters in `src/roster.js`
-- Tweak physics in `src/config.js`
-- Add stages in `src/stage.js`
+- Add characters in `roster.js`
+- Tweak physics in `config.js`
+- Add stages in `stage.js`
 
 Have fun and feel free to remix 🤘

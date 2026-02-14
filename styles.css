@@ -142,11 +142,13 @@ a{ color: var(--accent2); }
   display:flex;
   align-items:center;
   justify-content:center;
-  padding: 22px;
+  padding: calc(22px + env(safe-area-inset-top, 0px)) 22px calc(22px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
 }
 .screen{
   display:none;
   width: min(960px, 96vw);
+  margin: auto;
 }
 .screen.active{ display:block; }
 
@@ -351,4 +353,19 @@ h1{ font-size: 40px; letter-spacing: 0.6px; }
   .timer{ font-size: 22px; }
   .touch-dpad{ grid-template-columns: repeat(2, 56px); grid-auto-rows: 50px; }
   .touch-attacks{ grid-template-columns: repeat(2, 62px); grid-auto-rows: 50px; }
+}
+
+
+@media (max-height: 760px){
+  #screens{
+    align-items: flex-start;
+  }
+
+  .panel{
+    padding: 18px;
+  }
+
+  h1{
+    font-size: 34px;
+  }
 }
