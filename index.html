@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>Platypus vs Pharmacist: Tri‑State Throwdown</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="Game canvas revealing a 2D fighting game"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden" aria-hidden="true">
+      <div class="hud-row">
+        <div class="player-hud left">
+          <div class="name" id="p1-name">P1</div>
+          <div class="bar-wrap" title="Health">
+            <div class="bar health" id="p1-health"></div>
+          </div>
+          <div class="bar-wrap small" title="Focus (builds with combat)">
+            <div class="bar focus" id="p1-focus"></div>
+          </div>
+        </div>
+
+        <div class="center-hud">
+          <div class="rounds" id="rounds">Round 1</div>
+          <div class="timer" id="timer">99</div>
+          <button class="icon-btn" id="btn-pause" title="Pause (Esc)">⏸</button>
+        </div>
+
+        <div class="player-hud right">
+          <div class="name" id="p2-name">P2</div>
+          <div class="bar-wrap" title="Health">
+            <div class="bar health" id="p2-health"></div>
+          </div>
+          <div class="bar-wrap small" title="Focus (builds with combat)">
+            <div class="bar focus" id="p2-focus"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="announcer" class="announcer" aria-live="polite"></div>
+    </div>
+
+    <!-- Screens (menus/overlays) -->
+    <div id="screens">
+      <section class="screen active" id="screen-start">
+        <div class="panel">
+          <h1>Platypus vs Pharmacist</h1>
+          <p class="subtitle">Tri‑State Throwdown</p>
+
+          <div class="cta-row">
+            <button class="btn primary" id="btn-play">Play</button>
+            <button class="btn" id="btn-training">Training</button>
+          </div>
+
+          <div class="cta-row">
+            <button class="btn" id="btn-help">How to Play</button>
+            <button class="btn" id="btn-settings">Settings</button>
+          </div>
+
+          <p class="tiny">
+            Parody characters, original art. No affiliation with any TV show/studio.
+          </p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-select">
+        <div class="panel wide">
+          <div class="top-row">
+            <h2>Character Select</h2>
+            <button class="btn ghost" id="btn-back-from-select">← Back</button>
+          </div>
+
+          <div class="select-grid">
+            <div class="select-col">
+              <h3>Player 1</h3>
+              <div class="row">
+                <label>Type</label>
+                <select id="p1-type">
+                  <option value="human">Human</option>
+                  <option value="cpu">CPU</option>
+                </select>
+              </div>
+              <div class="row">
+                <label>Character</label>
+                <select id="p1-char"></select>
+              </div>
+              <div class="char-card" id="p1-info"></div>
+              <div class="row">
+                <label>Controls</label>
+                <div class="hint">WASD + F/G/H (Guard: E)</div>
+              </div>
+            </div>
+
+            <div class="select-col">
+              <h3>Player 2</h3>
+              <div class="row">
+                <label>Type</label>
+                <select id="p2-type">
+                  <option value="human">Human</option>
+                  <option value="cpu">CPU</option>
+                </select>
+              </div>
+              <div class="row">
+                <label>Character</label>
+                <select id="p2-char"></select>
+              </div>
+              <div class="char-card" id="p2-info"></div>
+              <div class="row">
+                <label>Controls</label>
+                <div class="hint">Arrow keys + J/K/L (Guard: I) <span class="muted">or Numpad 1/2/3 (Guard: 0)</span></div>
+              </div>
+            </div>
+
+            <div class="select-col">
+              <h3>Match Options</h3>
+              <div class="row">
+                <label>Rounds</label>
+                <select id="opt-rounds">
+                  <option value="1">1</option>
+                  <option value="3" selected>Best of 3</option>
+                  <option value="5">Best of 5</option>
+                </select>
+              </div>
+              <div class="row">
+                <label>Timer</label>
+                <select id="opt-timer">
+                  <option value="60">60s</option>
+                  <option value="99" selected>99s</option>
+                  <option value="150">150s</option>
+                  <option value="0">∞</option>
+                </select>
+              </div>
+              <div class="row">
+                <label>Stage</label>
+                <select id="opt-stage">
+                  <option value="rooftop" selected>Tri‑State Rooftop</option>
+                  <option value="pharmacy">Back Alley Pharmacy</option>
+                  <option value="lab">Not‑So‑Evil Lab</option>
+                </select>
+              </div>
+              <div class="row">
+                <label>Damage</label>
+                <input id="opt-dmg" type="range" min="0.6" max="1.6" step="0.05" value="1" />
+                <span class="range-val" id="opt-dmg-val">1.00×</span>
+              </div>
+
+              <div class="row">
+                <label>Touch Controls</label>
+                <select id="opt-touch">
+                  <option value="auto" selected>Auto</option>
+                  <option value="on">On</option>
+                  <option value="off">Off</option>
+                </select>
+              </div>
+
+              <div class="row">
+                <label>Touch Layout</label>
+                <select id="opt-touch-layout">
+                  <option value="single" selected>Single set</option>
+                  <option value="dual">Two‑player split</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-row">
+            <button class="btn primary" id="btn-start-match">Start Match</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-help">
+        <div class="panel wide">
+          <div class="top-row">
+            <h2>How to Play</h2>
+            <button class="btn ghost" id="btn-back-from-help">← Back</button>
+          </div>
+
+          <div class="help-grid">
+            <div class="help-card">
+              <h3>Goal</h3>
+              <p>Reduce your opponent’s health to zero. Special moves cost <b>Focus</b> (build it by fighting).</p>
+            </div>
+
+            <div class="help-card">
+              <h3>Moves</h3>
+              <ul>
+                <li><b>Light</b>: quick jab/strike (good for interrupts).</li>
+                <li><b>Heavy</b>: slower, more knockback (great at mid‑range).</li>
+                <li><b>Special</b>: unique move (often a projectile or dash). Costs Focus.</li>
+                <li><b>Guard</b>: hold to reduce damage and knockback. Guarding drains Focus slowly.</li>
+              </ul>
+            </div>
+
+            <div class="help-card">
+              <h3>Keyboard Controls</h3>
+              <div class="kbd-grid">
+                <div>
+                  <h4>P1</h4>
+                  <p>Move: <b>WASD</b><br/>Light: <b>F</b> • Heavy: <b>G</b> • Special: <b>H</b><br/>Guard: <b>E</b></p>
+                </div>
+                <div>
+                  <h4>P2</h4>
+                  <p>Move: <b>Arrow Keys</b><br/>Light: <b>J</b> • Heavy: <b>K</b> • Special: <b>L</b><br/>Guard: <b>I</b> (or Numpad 0)</p>
+                </div>
+              </div>
+              <p class="muted tiny">Tip: You can also click/tap the on‑screen controls on desktop if you want.</p>
+            </div>
+
+            <div class="help-card">
+              <h3>Mobile</h3>
+              <p>Enable touch controls in Character Select (Auto works for most phones). Use Single layout for 1P vs CPU or Dual layout for 2P on one screen.</p>
+            </div>
+          </div>
+
+          <div class="footer-row">
+            <button class="btn primary" id="btn-go-select">Go to Character Select</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-settings">
+        <div class="panel wide">
+          <div class="top-row">
+            <h2>Settings</h2>
+            <button class="btn ghost" id="btn-back-from-settings">← Back</button>
+          </div>
+
+          <div class="settings-grid">
+            <div class="row">
+              <label><input type="checkbox" id="set-sfx" checked /> Sound effects</label>
+            </div>
+            <div class="row">
+              <label><input type="checkbox" id="set-screen-shake" checked /> Screen shake</label>
+            </div>
+            <div class="row">
+              <label><input type="checkbox" id="set-hitflash" checked /> Hit flashes</label>
+            </div>
+            <div class="row">
+              <label><input type="checkbox" id="set-debug" /> Debug hitboxes</label>
+            </div>
+            <div class="row">
+              <label>CPU Difficulty</label>
+              <select id="set-difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="spicy">Spicy</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="tiny muted">
+            Settings save locally in your browser.
+          </p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-pause">
+        <div class="panel">
+          <h2>Paused</h2>
+          <div class="cta-row">
+            <button class="btn primary" id="btn-resume">Resume</button>
+            <button class="btn" id="btn-restart">Restart</button>
+          </div>
+          <div class="cta-row">
+            <button class="btn ghost" id="btn-quit">Quit to Menu</button>
+          </div>
+          <p class="tiny muted">Esc to resume.</p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-matchover">
+        <div class="panel">
+          <h2 id="matchover-title">KO!</h2>
+          <p id="matchover-sub" class="subtitle">Winner: P1</p>
+          <div class="cta-row">
+            <button class="btn primary" id="btn-rematch">Rematch</button>
+            <button class="btn ghost" id="btn-menu">Main Menu</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Touch controls -->
+    <div id="touch-controls" class="touch hidden" aria-hidden="true">
+      <div class="touch-player" data-player="1">
+        <div class="touch-dpad">
+          <button class="tbtn" data-action="left">◀</button>
+          <button class="tbtn" data-action="right">▶</button>
+          <button class="tbtn" data-action="up">▲</button>
+          <button class="tbtn" data-action="down">▼</button>
+        </div>
+        <div class="touch-attacks">
+          <button class="tbtn big" data-action="light">L</button>
+          <button class="tbtn big" data-action="heavy">H</button>
+          <button class="tbtn big" data-action="special">S</button>
+          <button class="tbtn" data-action="guard">G</button>
+        </div>
+      </div>
+
+      <div class="touch-player" data-player="2">
+        <div class="touch-dpad">
+          <button class="tbtn" data-action="left">◀</button>
+          <button class="tbtn" data-action="right">▶</button>
+          <button class="tbtn" data-action="up">▲</button>
+          <button class="tbtn" data-action="down">▼</button>
+        </div>
+        <div class="touch-attacks">
+          <button class="tbtn big" data-action="light">L</button>
+          <button class="tbtn big" data-action="heavy">H</button>
+          <button class="tbtn big" data-action="special">S</button>
+          <button class="tbtn" data-action="guard">G</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
